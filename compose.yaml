@@ -1,0 +1,37 @@
+name: otus-angie
+services:
+  angie:
+    image: ${ANGIE_IMAGE:?Set ANGIE_IMAGE in .env}
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - type: bind
+        source: ./docker/etc/angie/${ANGIE_MODE:?Set ANGIE_MODE}/angie.conf
+        target: /etc/angie/angie.conf
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./docker/etc/angie/${ANGIE_MODE}/http.d
+        target: /etc/angie/http.d
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${STATIC_ROOT:?Set STATIC_ROOT}
+        target: /var/www/static
+        read_only: true
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${ACME_ROOT:?Set ACME_ROOT}
+        target: /srv/angie/acme
+        bind:
+          create_host_path: false
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
